@@ -41,10 +41,43 @@ const formattedDate = post.publishedAt
       day: 'numeric',
     })
   : ''
+const canonicalUrl = new URL(`/blog/${slug}/`, Astro.site).href
+
+const imageUrl = post.coverImage
+  ? urlFor(post.coverImage)
+  : undefined
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  description: post.excerpt || post.title,
+  url: canonicalUrl,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': canonicalUrl,
+  },
+  author: {
+    '@type': 'Organization',
+    name: post.author || 'GifyTech',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'GifyTech',
+    url: 'https://gifytech-website-bay.vercel.app/',
+  },
+  ...(post.publishedAt && {
+    datePublished: new Date(post.publishedAt).toISOString(),
+  }),
+  ...(imageUrl && {
+    image: [imageUrl],
+  }),
+}
 ---
 
 <html lang="en">
  
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -59,6 +92,8 @@ const formattedDate = post.publishedAt
   <meta name="robots" content="index, follow" />
   <meta name="author" content={post.author || 'GifyTech Team'} />
 
+  <link rel="canonical" href={canonicalUrl} />
+
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="GifyTech Journal" />
   <meta property="og:title" content={post.title} />
@@ -66,15 +101,29 @@ const formattedDate = post.publishedAt
     property="og:description"
     content={post.excerpt || post.title}
   />
-  <meta property="og:url" content={Astro.url.href} />
+  <meta property="og:url" content={canonicalUrl} />
 
-  {post.coverImage && (
+  {post.publishedAt && (
     <meta
-      property="og:image"
-      content={urlFor(post.coverImage)}
+      property="article:published_time"
+      content={new Date(post.publishedAt).toISOString()}
     />
   )}
+
+  {imageUrl && (
+    <>
+      <meta property="og:image" content={imageUrl} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:image" content={imageUrl} />
+    </>
+  )}
+
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(articleSchema).replace(/</g, '\\u003c')}
+  />
 </head>
+
 
 
   <body>
