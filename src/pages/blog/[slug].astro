@@ -191,7 +191,24 @@ const articleSchema = {
         </div>
 
 
-        <a href="/blog" class="back-bottom">← Explore more articles</a>
+        
+      <section class="agency-cta">
+        <p class="cta-eyebrow">READY TO GROW YOUR BUSINESS?</p>
+        <h2>Turn these ideas into real results.</h2>
+        <p>
+          GifyTech helps businesses build stronger websites, reach more customers,
+          and streamline their work with AI automation.
+        </p>
+        <a
+          class="agency-button"
+          href="https://gifytech-website-bay.vercel.app/"
+        >
+          Explore GifyTech Services →
+        </a>
+      </section>
+
+      <a href="/blog/" class="back-bottom">← Explore more articles</a>
+
       </article>
     </main>
 
@@ -313,4 +330,54 @@ const articleSchema = {
     .logo { font-size: 18px; }
     main { padding: 40px 20px 65px; }
   }
+
+
+  .agency-cta {
+    margin-top: 55px;
+    padding: 35px;
+    border-radius: 18px;
+    background: #f1edff;
+    text-align: center;
+  }
+
+  .agency-cta .cta-eyebrow {
+    color: #7355d8;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+  }
+
+  .agency-cta h2 {
+    margin: 14px 0;
+    color: #202338;
+    font-size: clamp(25px, 4vw, 34px);
+    line-height: 1.25;
+  }
+
+  .agency-cta > p:not(.cta-eyebrow) {
+    max-width: 560px;
+    margin: 0 auto 24px;
+    color: #697087;
+    line-height: 1.8;
+  }
+
+  .agency-button {
+    display: inline-block;
+    padding: 14px 20px;
+    border-radius: 8px;
+    background: #7355d8;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .agency-button:hover {
+    background: #5c40bd;
+  }
+
+  @media (max-width: 600px) {
+    .agency-cta {
+      padding: 25px 18px;
+    }
+  }
+
 </style>
