@@ -26,15 +26,36 @@ const posts = await client.fetch<Post[]>(`
 ---
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GifyTech Blog | Digital Growth & AI Insights</title>
-    <meta
-      name="description"
-      content="Explore GifyTech insights on website development, digital marketing, AI automation, and business growth."
-    />
-  </head>
+  
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <title>GifyTech Articles | AI Automation & Digital Marketing</title>
+
+      <meta
+        name="description"
+        content="Explore GifyTech articles on AI automation, website development, digital marketing strategies, and practical ways to grow your business."
+      />
+
+      <meta name="robots" content="index, follow" />
+      <link rel="canonical" href="https://gifytech-blog.vercel.app/blog/" />
+
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="GifyTech Journal" />
+      <meta
+        property="og:title"
+        content="GifyTech Articles | AI Automation & Digital Marketing"
+      />
+      <meta
+        property="og:description"
+        content="Practical articles on AI automation, websites, digital marketing, and business growth."
+      />
+      <meta property="og:url" content="https://gifytech-blog.vercel.app/blog/" />
+
+      <meta name="twitter:card" content="summary" />
+    </head>
+
 
   <body>
     <header class="header">
