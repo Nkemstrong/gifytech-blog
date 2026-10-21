@@ -8,7 +8,7 @@ import sanity from '@sanity/astro';
 
 // https://astro.build/config
 export default defineConfig({
-    site: 'https://gifytech-website-bay.vercel.app',
+    site: 'https://gifytech-blog.vercel.app',
     integrations: [
     mdx(),
     sitemap(),
