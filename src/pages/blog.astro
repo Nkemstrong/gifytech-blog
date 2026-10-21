@@ -1,0 +1,186 @@
+
+---
+import { client, urlFor } from '../lib/sanity'
+
+interface Post {
+  _id: string
+  title: string
+  slug: { current: string }
+  excerpt?: string
+  category?: string
+  coverImage?: any
+  publishedAt?: string
+}
+
+const posts = await client.fetch<Post[]>(`
+  *[_type == "post" && defined(slug.current)] | order(publishedAt desc) {
+    _id,
+    title,
+    slug,
+    excerpt,
+    category,
+    coverImage,
+    publishedAt
+  }
+`)
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GifyTech Blog | Digital Growth & AI Insights</title>
+    <meta
+      name="description"
+      content="Explore GifyTech insights on website development, digital marketing, AI automation, and business growth."
+    />
+  </head>
+
+  <body>
+    <header class="header">
+      <a href="/" class="logo">Gify<span>Tech</span></a>
+      <a href="https://gifytech-website-bay.vercel.app/" class="back">
+        Back to GifyTech Website ↗
+      </a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">THE GIFYTECH JOURNAL</p>
+        <h1>Ideas that help your <span>business grow.</span></h1>
+        <p>
+          Practical insights on AI automation, websites, digital marketing,
+          and building a stronger online presence.
+        </p>
+      </section>
+
+      <section class="articles">
+        <div class="section-heading">
+          <h2>Latest Articles</h2>
+          <p>Insights, strategies and ideas from GifyTech.</p>
+        </div>
+
+        <div class="grid">
+          {posts.map((post) => (
+            <a href={`/blog/${post.slug.current}/`} class="card">
+              {post.coverImage && (
+                <img
+                  src={urlFor(post.coverImage)}
+                  alt={post.coverImage.alt || post.title}
+                  loading="lazy"
+                />
+              )}
+
+              <div class="card-content">
+                <span class="category">
+                  {post.category?.replaceAll('-', ' ')}
+                </span>
+                <h3>{post.title}</h3>
+                <p>{post.excerpt}</p>
+                <span class="read-more">Read Article →</span>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {posts.length === 0 && (
+          <p class="empty">No published articles yet. Check back soon!</p>
+        )}
+      </section>
+    </main>
+
+    <footer>
+      © {new Date().getFullYear()} GifyTech. All rights reserved.
+    </footer>
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(body) {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #202338;
+    background: #f7f6fb;
+  }
+  :global(a) { text-decoration: none; color: inherit; }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px 7%;
+    background: white;
+    border-bottom: 1px solid #eae8f2;
+  }
+  .logo { font-size: 27px; font-weight: 800; }
+  .logo span { color: #7355d8; }
+  .back { font-size: 14px; font-weight: 600; }
+  .hero {
+    padding: 95px 7% 85px;
+    text-align: center;
+    background: linear-gradient(135deg, #f1edff, #fff);
+  }
+  .eyebrow {
+    color: #7355d8;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+  }
+  h1 {
+    max-width: 800px;
+    margin: 20px auto;
+    font-size: clamp(38px, 6vw, 65px);
+    line-height: 1.1;
+  }
+  h1 span { color: #7355d8; }
+  .hero > p:last-child {
+    max-width: 650px;
+    margin: auto;
+    color: #697087;
+    line-height: 1.8;
+  }
+  .articles { padding: 80px 7%; max-width: 1400px; margin: auto; }
+  .section-heading { margin-bottom: 35px; }
+  .section-heading h2 { font-size: 32px; margin-bottom: 8px; }
+  .section-heading p { color: #697087; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
+  }
+  .card {
+    background: white;
+    border: 1px solid #eae8f2;
+    border-radius: 18px;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px #20233814;
+  }
+  .card img { width: 100%; height: 220px; object-fit: cover; }
+  .card-content { padding: 26px; }
+  .category {
+    color: #7355d8;
+    text-transform: capitalize;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .card h3 { font-size: 21px; line-height: 1.4; }
+  .card p { color: #697087; line-height: 1.7; }
+  .read-more { color: #7355d8; font-weight: 700; }
+  .empty { padding: 50px 0; text-align: center; color: #697087; }
+  footer { padding: 30px; text-align: center; color: #697087; }
+  @media(max-width: 900px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media(max-width: 600px) {
+    .header { padding: 20px 5%; }
+    .back { font-size: 12px; }
+    .hero { padding: 65px 5%; }
+    .articles { padding: 55px 5%; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>

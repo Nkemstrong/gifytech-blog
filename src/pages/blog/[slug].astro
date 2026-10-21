@@ -1,0 +1,267 @@
+
+---
+import { client, urlFor } from '../../lib/sanity'
+
+export async function getStaticPaths() {
+  const posts = await client.fetch(`
+    *[_type == "post" && defined(slug.current)] {
+      "slug": slug.current
+    }
+  `)
+
+  return posts.map((post: { slug: string }) => ({
+    params: { slug: post.slug },
+    props: { slug: post.slug },
+  }))
+}
+
+const { slug } = Astro.props
+
+const post = await client.fetch(
+  `*[_type == "post" && slug.current == $slug][0] {
+    title,
+    excerpt,
+    category,
+    author,
+    publishedAt,
+    coverImage,
+    body
+  }`,
+  { slug },
+)
+
+if (!post) {
+  throw new Error('Article not found in Sanity.')
+}
+
+const formattedDate = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('en', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : ''
+---
+
+<html lang="en">
+ 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>{post.title} | GifyTech Journal</title>
+
+  <meta
+    name="description"
+    content={post.excerpt || post.title}
+  />
+
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content={post.author || 'GifyTech Team'} />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="GifyTech Journal" />
+  <meta property="og:title" content={post.title} />
+  <meta
+    property="og:description"
+    content={post.excerpt || post.title}
+  />
+  <meta property="og:url" content={Astro.url.href} />
+
+  {post.coverImage && (
+    <meta
+      property="og:image"
+      content={urlFor(post.coverImage)}
+    />
+  )}
+</head>
+
+
+  <body>
+    <header>
+      <a class="logo" href="/blog">Gify<span>Tech</span> Journal</a>
+      <a href="/blog" class="back">← All Articles</a>
+    </header>
+
+    <main>
+      <article>
+        <a href="/blog" class="breadcrumb">GifyTech Journal / Articles</a>
+
+        <p class="category">{post.category?.replaceAll('-', ' ')}</p>
+        <h1>{post.title}</h1>
+
+        {post.excerpt && <p class="excerpt">{post.excerpt}</p>}
+
+        <div class="meta">
+          <span>By {post.author || 'GifyTech Team'}</span>
+          {formattedDate && <span>{formattedDate}</span>}
+        </div>
+
+        {post.coverImage && (
+          <img
+            class="cover"
+            src={urlFor(post.coverImage)}
+            alt={post.coverImage.alt || post.title}
+          />
+        )}
+
+        
+        <div class="content">
+        {post.body?.map((block: any, index: number) => {
+            if (block._type === 'image') {
+            return (
+                <figure>
+                <img
+                    src={urlFor(block)}
+                    alt={block.alt || post.title}
+                    loading="lazy"
+                />
+                </figure>
+            )
+            }
+
+            if (block._type !== 'block') return null
+
+            const text = block.children
+            ?.map((child: any) => child.text || '')
+            .join('')
+
+            if (block.style === 'h2') return <h2>{text}</h2>
+            if (block.style === 'h3') return <h3>{text}</h3>
+
+            if (block.style === 'blockquote') {
+            return <blockquote>{text}</blockquote>
+            }
+
+            if (block.listItem) {
+            return <p class="list-paragraph">{text}</p>
+            }
+
+            return <p>{text}</p>
+        })}
+        </div>
+
+
+        <a href="/blog" class="back-bottom">← Explore more articles</a>
+      </article>
+    </main>
+
+    <footer>© {new Date().getFullYear()} GifyTech. All rights reserved.</footer>
+  </body>
+</html>
+
+<style>
+  :global(*) { box-sizing: border-box; }
+  :global(body) {
+    margin: 0;
+    color: #202338;
+    background: #fff;
+    font-family: Arial, sans-serif;
+  }
+  :global(a) { text-decoration: none; color: inherit; }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 7%;
+    border-bottom: 1px solid #eae8f2;
+  }
+  .logo { font-size: 22px; font-weight: 800; }
+  .logo span { color: #7355d8; }
+  .back { font-size: 14px; font-weight: 700; }
+  main { padding: 60px 22px 90px; }
+  article { max-width: 800px; margin: 0 auto; }
+  .breadcrumb { color: #7355d8; font-size: 13px; }
+  .category {
+    margin-top: 32px;
+    color: #7355d8;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  h1 {
+    margin: 15px 0;
+    font-size: clamp(36px, 6vw, 58px);
+    line-height: 1.12;
+    letter-spacing: -1.5px;
+  }
+  .excerpt { color: #697087; font-size: 19px; line-height: 1.8; }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 25px 0;
+    color: #697087;
+    font-size: 13px;
+  }
+  .cover {
+    display: block;
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 18px;
+    margin: 30px 0 45px;
+  }
+  
+  .content {
+  font-size: 17px;
+  line-height: 1.95;
+  color: #383b4b;
+}
+
+.content p {
+  margin: 0 0 24px;
+}
+
+.content h2 {
+  margin: 48px 0 18px;
+  font-size: 30px;
+  line-height: 1.3;
+  color: #202338;
+}
+
+.content h3 {
+  margin: 32px 0 14px;
+  font-size: 23px;
+  line-height: 1.4;
+}
+
+.content .list-paragraph {
+  margin: 0 0 16px;
+  padding: 16px 20px;
+  background: #f7f6fb;
+  border-left: 3px solid #7355d8;
+  border-radius: 0 8px 8px 0;
+}
+
+.content figure {
+  margin: 32px 0;
+}
+
+.content figure img {
+  width: 100%;
+  border-radius: 14px;
+}
+
+.content blockquote {
+  margin: 30px 0;
+  padding: 20px 24px;
+  border-left: 4px solid #7355d8;
+  background: #f7f6fb;
+  border-radius: 0 8px 8px 0;
+}
+  .back-bottom {
+    display: inline-block;
+    margin-top: 45px;
+    color: #7355d8;
+    font-weight: 700;
+  }
+  footer { padding: 30px; text-align: center; color: #697087; }
+  @media(max-width: 600px) {
+    header { padding: 20px 5%; }
+    .logo { font-size: 18px; }
+    main { padding: 40px 20px 65px; }
+  }
+</style>
